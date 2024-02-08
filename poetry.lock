@@ -3139,14 +3139,12 @@ requests = "*"
 
 [[package]]
 name = "llm"
-version = "0.13.1"
-description = "A CLI utility and Python library for interacting with Large Language Models, including OpenAI, PaLM and local models installed on your own machine."
+version = "0.13.1.post1"
+description = ""
 optional = false
 python-versions = ">=3.8"
-files = [
-    {file = "llm-0.13.1-py3-none-any.whl", hash = "sha256:05e468e3723097a07dba9d2b87d05f2359e7e436e8b8bd6743074021f4d8169c"},
-    {file = "llm-0.13.1.tar.gz", hash = "sha256:fadda395c273cfd199886f41b6380eb37106284754cb21601233217ae764d4f7"},
-]
+files = []
+develop = false
 
 [package.dependencies]
 click = "*"
@@ -3164,6 +3162,12 @@ sqlite-utils = ">=3.35.0"
 
 [package.extras]
 test = ["black (>=24.1.0)", "cogapp", "mypy", "numpy", "pytest", "pytest-httpx", "ruff", "types-PyYAML", "types-click", "types-setuptools"]
+
+[package.source]
+type = "git"
+url = "https://github.com/lucinvitae/llm.git"
+reference = "main"
+resolved_reference = "226251c151794b463eb3cf9cf86cc50bef2ea405"
 
 [[package]]
 name = "llm-gpt4all"
@@ -9012,4 +9016,4 @@ docs = []
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9, !=3.9.7"
-content-hash = "fc9fe03aeb370ed2eeaa37b03f2ea423164aef5eb3513776da64326cabc5399f"
+content-hash = "7f126a0f2c2432736a44139c7e9fec204e1690aa3edf34b0e6a1630593c6e704"

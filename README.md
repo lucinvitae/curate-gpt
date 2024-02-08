@@ -278,3 +278,18 @@ If using with Azure OpenAI Services, a few additional steps are required.
 Step 1. `cp etc/azure.toml etc/azure_custom.toml`
 Step 2. Fill out the settings for the chat and embeddings model deployments in `etc/azure_custom.toml`
 Step 3. Set `USE_AZURE=true` when running the code.
+Step 4. Configure `extra-openai-models.yaml` as below and `export AZURE_OPENAI_API_KEY` in your env
+Step 5. Test integration with CurateGPT CLI: `curategpt ask -m azure-gpt4 -c hpoa --path stagedb "What HPO terms are ...`
+
+### Example `extra-openai-models.yaml` configuration
+
+```
+- aliases: ["azure-gpt4"]
+  api_base: https://my-openai-svc.openai.azure.com/
+  api_deployment_name: gpt-4-8k-server
+  api_engine: gpt4
+  api_type: azure
+  api_version: "2023-05-15"
+  model_id: azure-gpt4
+  model_name: gpt4
+```
