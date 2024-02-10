@@ -31,7 +31,7 @@ from curate_gpt.evaluation.runner import run_task
 from curate_gpt.evaluation.splitter import stratify_collection
 from curate_gpt.extract import AnnotatedObject
 from curate_gpt.extract.basic_extractor import BasicExtractor
-from curate_gpt.pipeline_dspy import basic_qa_dspy, rag_dspy, retrieve_dspy
+from curate_gpt.pipeline.pipelines import basic_qa_dspy, rag_dspy, retrieve_dspy
 from curate_gpt.store.schema_proxy import SchemaProxy
 from curate_gpt.utils.vectordb_operations import match_collections
 from curate_gpt.wrappers import BaseWrapper, get_wrapper
