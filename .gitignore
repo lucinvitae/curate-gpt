@@ -143,4 +143,10 @@ tests/output/*
 
 # Credential files
 **_custom.*
+
+# IDE files
 .idea/
+
+# Backup files
+*.bak
+*.bak/

@@ -31,7 +31,7 @@ from curate_gpt.evaluation.runner import run_task
 from curate_gpt.evaluation.splitter import stratify_collection
 from curate_gpt.extract import AnnotatedObject
 from curate_gpt.extract.basic_extractor import BasicExtractor
-from curate_gpt.pipeline_dspy import extract_dspy
+from curate_gpt.pipeline_dspy import basic_qa_dspy, rag_dspy, retrieve_dspy
 from curate_gpt.store.schema_proxy import SchemaProxy
 from curate_gpt.utils.vectordb_operations import match_collections
 from curate_gpt.wrappers import BaseWrapper, get_wrapper
@@ -289,6 +289,35 @@ def search(query, path, collection, show_documents, **kwargs):
             print("```")
             print(meta)
             print("```")
+
+
+@main.command()
+@path_option
+@collection_option
+@limit_option
+@relevance_factor_option
+@click.option(
+    "--show-documents/--no-show-documents",
+    default=False,
+    show_default=True,
+    help="Whether to show documents/text (e.g. for chromadb).",
+)
+@click.argument("query")
+def search_dspy(query, path, collection, limit):
+    """
+    Search a collection using embedding search with dspy.
+
+    Example:
+
+        curategpt search-dspy -c hpoa --path stagedb "Find me HP:0008138 Equinus calcaneus" --limit=1
+    """
+
+    passages = retrieve_dspy(query, path, collection, limit)
+
+    print(f"Top {limit} passages for question: {query} \n", "-" * 30, "\n")
+
+    for idx, passage in enumerate(passages):
+        print(f"{idx + 1}]", passage, "\n")
 
 
 @main.command(name="all-by-all")
@@ -1277,17 +1306,30 @@ def ask(query, path, collection, model, show_references, _continue, conversation
 
 
 @main.command()
-@collection_option
-@path_option
 @click.argument("query")
-def ask_dspy(query, path, collection):
+def ask_dspy(query: str):
     """Chat with data in a collection.
 
     Example:
 
-        curategpt ask-dspy -c hpoa "What is the HPO term for breast cancer?"
+        curategpt ask-dspy "What is the HPO term for breast cancer?"
     """
-    result = extract_dspy(query, path, collection)
+    result = basic_qa_dspy(query)
+    print(f"Predicted Answer: {result.answer}")
+
+
+@main.command()
+@collection_option
+@path_option
+@click.argument("query")
+def extract_dspy(query, path, collection):
+    """Chat with data in a collection.
+
+    Example:
+
+        curategpt extract-dspy -c hpoa "What is the HPO ID for breast cancer?"
+    """
+    result = rag_dspy(query, path, collection)
     print(f"Predicted Answer: {result.answer}")
 
     # db = ChromaDBAdapter(path)
