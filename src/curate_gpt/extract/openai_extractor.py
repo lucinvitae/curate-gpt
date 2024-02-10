@@ -16,6 +16,21 @@ FUNC_NAME = "extract_data"
 logger = logging.getLogger(__name__)
 
 
+def get_client(use_azure: bool, **kwargs) -> Union[OpenAI, AzureOpenAI]:
+    client_class = AzureOpenAI if use_azure else OpenAI
+    if use_azure:
+        config = get_azure_settings()["chat_model"]
+        kwargs.update(
+            {
+                "api_version": config["api_version"],
+                "azure_endpoint": config["base_url"],
+                "api_key": config["api_key"],
+                "azure_deployment": config["deployment_name"],
+            }
+        )
+    return client_class(**kwargs)
+
+
 @dataclass
 class OpenAIExtractor(Extractor):
 
@@ -29,7 +44,7 @@ class OpenAIExtractor(Extractor):
     # conversation_mode: bool = False
 
     def __init__(self, use_azure: bool = USE_AZURE):
-        self._client = self.get_client(use_azure)
+        self._client = get_client(use_azure)
 
     def functions(self):
         return [
@@ -121,17 +136,3 @@ class OpenAIExtractor(Extractor):
                 raise e
             obj = {}
         return AnnotatedObject(object=obj)
-
-    def get_client(self, use_azure: bool, **kwargs) -> Union[OpenAI, AzureOpenAI]:
-        client_class = AzureOpenAI if use_azure else OpenAI
-        if use_azure:
-            config = get_azure_settings()["chat_model"]
-            kwargs.update(
-                {
-                    "api_version": config["api_version"],
-                    "azure_endpoint": config["base_url"],
-                    "api_key": config["api_key"],
-                    "azure_deployment": config["deployment_name"],
-                }
-            )
-        return client_class(**kwargs)

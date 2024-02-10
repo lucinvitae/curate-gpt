@@ -31,6 +31,7 @@ from curate_gpt.evaluation.runner import run_task
 from curate_gpt.evaluation.splitter import stratify_collection
 from curate_gpt.extract import AnnotatedObject
 from curate_gpt.extract.basic_extractor import BasicExtractor
+from curate_gpt.pipeline_dspy import extract_dspy
 from curate_gpt.store.schema_proxy import SchemaProxy
 from curate_gpt.utils.vectordb_operations import match_collections
 from curate_gpt.wrappers import BaseWrapper, get_wrapper
@@ -1273,6 +1274,31 @@ def ask(query, path, collection, model, show_references, _continue, conversation
     chatbot.knowledge_source = db
     response = chatbot.chat(query, collection=collection, conversation=conversation)
     show_chat_response(response, show_references)
+
+
+@main.command()
+@collection_option
+@path_option
+@click.argument("query")
+def ask_dspy(query, path, collection):
+    """Chat with data in a collection.
+
+    Example:
+
+        curategpt ask-dspy -c hpoa "What is the HPO term for breast cancer?"
+    """
+    result = extract_dspy(query, path, collection)
+    print(f"Predicted Answer: {result.answer}")
+
+    # db = ChromaDBAdapter(path)
+    # extractor = BasicExtractor()
+    # extractor.model_name = "azure-gpt4"
+    # conversation = None
+    # chatbot = ChatAgent(path)
+    # chatbot.extractor = extractor
+    # chatbot.knowledge_source = db
+    # response = chatbot.chat(query, collection=collection, conversation=conversation)
+    # show_chat_response(response)
 
 
 @main.command()
