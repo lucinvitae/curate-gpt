@@ -43,6 +43,24 @@ class RAG(dspy.Module):
         return dspy.Prediction(context=context, answer=prediction.answer)
 
 
+# class RAG(dspy.Module):
+#     def __init__(self, num_passages=5):
+#         super().__init__()
+#
+#         # declare three modules: the retriever, a query generator, and an answer generator
+#         self.retrieve = dspy.Retrieve(k=num_passages)
+#         self.generate_query = dspy.ChainOfThought("question -> search_query")
+#         self.generate_answer = dspy.ChainOfThought("context, question -> answer")
+#
+#     def forward(self, question):
+#         # generate a search query from the question, and use it to retrieve passages
+#         search_query = self.generate_query(question=question).search_query
+#         passages = self.retrieve(search_query).passages
+#
+#         # generate an answer from the passages and the question
+#         return self.generate_answer(context=passages, question=question)
+
+
 def basic_qa_dspy(query: str):
     language_model = GPT(temperature=0.7)
 

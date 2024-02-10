@@ -154,8 +154,10 @@ class ChromadbForAzureRM(dspy.Retrieve):
             kwargs["n_results"] = k
         logger.debug(f"Query texts: {query_texts} include: {include}, kwargs={kwargs}")
         if query_texts == ["any"] and "n_results" not in kwargs and False:
+            # TODO: refactor/ add backoff/retry with @backoff.add_handler similar to gpt.py
             results = collection.get(include=include, **kwargs)
         else:
+            # TODO: refactor/ add backoff/retry with @backoff.add_handler similar to gpt.py
             results = collection.query(query_texts=query_texts, include=include, **kwargs)
         metadatas = results["metadatas"][0]
         results["distances"][0]

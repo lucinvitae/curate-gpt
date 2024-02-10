@@ -1,4 +1,3 @@
-import functools
 import json
 import logging
 from typing import Any, Union
@@ -6,7 +5,7 @@ from typing import Any, Union
 import backoff
 import dsp
 import openai
-from dsp import LM, CacheMemory, NotebookCacheMemory, cache_turn_on
+from dsp import LM
 from openai import OpenAI
 from openai.lib.azure import AzureOpenAI
 from openai.types.chat import ChatCompletion
@@ -38,7 +37,7 @@ def get_registry_key(**kwargs) -> str:
     return kwargs[CLIENT_REGISTRY_KEY]
 
 
-@CacheMemory.cache
+# @CacheMemory.cache
 def v1_cached_gpt_turbo_request_v2(**kwargs) -> ChatCompletion:
     client = _client_registry[get_registry_key(**kwargs)]
     if "stringify_request" in kwargs:
@@ -47,8 +46,8 @@ def v1_cached_gpt_turbo_request_v2(**kwargs) -> ChatCompletion:
     return client.chat.completions.create(**kwargs)
 
 
-@functools.lru_cache(maxsize=None if cache_turn_on else 0)
-@NotebookCacheMemory.cache
+# @functools.lru_cache(maxsize=None if cache_turn_on else 0)
+# @NotebookCacheMemory.cache
 def v1_cached_gpt_turbo_request_v2_wrapped(**kwargs) -> ChatCompletion:
     return v1_cached_gpt_turbo_request_v2(**kwargs)
 
