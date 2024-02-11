@@ -74,11 +74,12 @@ class ChromadbForAzureRM(dspy.Retrieve):
         collection_name: str,
         model: str = "text-embedding-ada-002",
         k: int = 5,
+        use_azure: bool = USE_AZURE,
     ):
         self.model = model
         self.client = client
         self.collection_name = collection_name
-        self.openai_ef = get_openai_embedding_function(model_name=model)
+        self.openai_ef = get_openai_embedding_function(model_name=model, use_azure=use_azure)
         super().__init__(k=k)
 
     @classmethod

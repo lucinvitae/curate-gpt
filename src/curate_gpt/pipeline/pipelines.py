@@ -30,35 +30,62 @@ class GenerateAnswer(dspy.Signature):
     answer = dspy.OutputField(desc="often between 1 and 5 words")
 
 
-class RAG(dspy.Module):
-    def __init__(self, retrieve_k=5):
+class PredictHPOs(dspy.Signature):
+    __doc__ = """Given a snippet from a patient's medical history, identify the Human Phenotype Ontology (HPO) identifier for each phenotype in the text. If none are mentioned in the snippet, say '\n'."""
+
+    context = dspy.InputField()
+    hpo_ids = dspy.OutputField(
+        desc="list of comma-separated HPO IDs",
+        format=lambda x: ", ".join(x) if isinstance(x, list) else x,
+    )
+
+
+class CoT(dspy.Module):
+    def __init__(self):
         super().__init__()
 
-        self.retrieve = dspy.Retrieve(k=retrieve_k)
-        self.generate_answer = dspy.ChainOfThought(GenerateAnswer)
+        self.generate_answer = dspy.ChainOfThought(PredictHPOs)
 
-    def forward(self, question):
-        context = self.retrieve(question).passages
-        prediction = self.generate_answer(context=context, question=question)
-        return dspy.Prediction(context=context, answer=prediction.answer)
+    def forward(self, context, labels=None):
+        return self.generate_answer(context=context)
 
 
-# class RAG(dspy.Module):
-#     def __init__(self, num_passages=5):
-#         super().__init__()
-#
-#         # declare three modules: the retriever, a query generator, and an answer generator
-#         self.retrieve = dspy.Retrieve(k=num_passages)
-#         self.generate_query = dspy.ChainOfThought("question -> search_query")
-#         self.generate_answer = dspy.ChainOfThought("context, question -> answer")
-#
-#     def forward(self, question):
-#         # generate a search query from the question, and use it to retrieve passages
-#         search_query = self.generate_query(question=question).search_query
-#         passages = self.retrieve(search_query).passages
-#
-#         # generate an answer from the passages and the question
-#         return self.generate_answer(context=passages, question=question)
+class SearchQueryForHPOs(dspy.Signature):
+    __doc__ = """Given a snippet from a patient's medical history, create a search query for the Human Phenotype Ontology (HPO) identifier for each phenotype in the text."""
+
+    context = dspy.InputField()
+    search_query = dspy.OutputField(desc="search query to retrieve HPO document texts")
+
+
+class PredictWithSearchHPOs(dspy.Signature):
+    __doc__ = """Given a snippet from a patient's medical history and the search results, identify the Human Phenotype Ontology (HPO) identifier for each phenotype in the text. If none are mentioned in the snippet, say '\n'."""
+
+    context = dspy.InputField()
+    documents = dspy.InputField(
+        desc="HPO document texts", format=lambda x: "\n\n".join(x) if isinstance(x, list) else x
+    )
+    hpo_ids = dspy.OutputField(
+        desc="list of comma-separated HPO IDs",
+        format=lambda x: ", ".join(x) if isinstance(x, list) else x,
+    )
+
+
+class RAG(dspy.Module):
+    def __init__(self, num_passages=3):
+        super().__init__()
+
+        # declare three modules: the retriever, a query generator, and an answer generator
+        self.retrieve = dspy.Retrieve(k=num_passages)
+        self.generate_query = dspy.ChainOfThought(SearchQueryForHPOs)
+        self.generate_answer = dspy.ChainOfThought(PredictWithSearchHPOs)
+
+    def forward(self, context, labels=None):
+        # generate a search query from the context, and use it to retrieve passages
+        search_query = self.generate_query(context=context).search_query
+        documents = self.retrieve(search_query).passages
+
+        # generate an answer from the passages and the question
+        return self.generate_answer(context=context, documents=documents)
 
 
 def basic_qa_dspy(query: str):
